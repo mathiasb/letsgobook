@@ -1,19 +1,23 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/bmizerany/pat"
+)
 
 func (app *application) routes() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippet", app.showSnippet)
-	mux.HandleFunc("/foo/", app.fooHandler)
-	mux.HandleFunc("/snippet/create", app.createSnippet)
+	patRouter := pat.New()
+	patRouter.Get("/", http.HandlerFunc(app.home))
+	patRouter.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
+	patRouter.Post("/snippet/create", http.HandlerFunc(app.createSnippet))
+	patRouter.Get("/snippet/:id", http.HandlerFunc(app.showSnippet))
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	patRouter.Get("/static/", http.StripPrefix("/static", fileServer))
 
 	return app.recoverPanicMiddleware(
 		app.logRequestMiddleware(
 			secureHeaderMiddleware(
-				mux)))
+				patRouter)))
 }
