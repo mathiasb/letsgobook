@@ -7,11 +7,12 @@ import (
 )
 
 func (app *application) routes() http.Handler {
+	s := app.session
 	patRouter := pat.New()
-	patRouter.Get("/", http.HandlerFunc(app.home))
-	patRouter.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
-	patRouter.Post("/snippet/create", http.HandlerFunc(app.createSnippet))
-	patRouter.Get("/snippet/:id", http.HandlerFunc(app.showSnippet))
+	patRouter.Get("/", s.Enable(http.HandlerFunc(app.home)))
+	patRouter.Get("/snippet/create", s.Enable(http.HandlerFunc(app.createSnippetForm)))
+	patRouter.Post("/snippet/create", s.Enable(http.HandlerFunc(app.createSnippet)))
+	patRouter.Get("/snippet/:id", s.Enable(http.HandlerFunc(app.showSnippet)))
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	patRouter.Get("/static/", http.StripPrefix("/static", fileServer))
