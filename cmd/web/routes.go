@@ -49,6 +49,8 @@ func (app *application) routes() http.Handler {
 				app.requireAuthentication(
 					http.HandlerFunc(app.logoutUser))))))
 
+	patRouter.Get("/ping", http.HandlerFunc(ping))
+
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	patRouter.Get("/static/", http.StripPrefix("/static", fileServer))
 
